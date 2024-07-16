@@ -1,0 +1,95 @@
+El módulo GY-NEO6MV2 es un receptor GPS que se puede conectar fácilmente a un Arduino Mega. A continuación, te proporcionaré un gráfico de conexiones y un programa simple para probar el módulo GPS.
+Conexiones
+
+El GY-NEO6MV2 se comunica con el Arduino Mega mediante una interfaz serie (UART). Aquí tienes las conexiones necesarias:
+
+    GY-NEO6MV2:
+        VCC: 5V del Arduino Mega
+        GND: GND del Arduino Mega
+        TX: Pin RX1 (19) del Arduino Mega
+        RX: Pin TX1 (18) del Arduino Mega
+
+Gráfico de Conexiones
+
+lua
+
+GY-NEO6MV2          Arduino Mega
+    VCC  -------->  5V
+    GND  -------->  GND
+    TX   -------->  RX1 (19)
+    RX   -------->  TX1 (18)
+
+Programa de Prueba
+
+Para este programa, utilizaremos la librería TinyGPS++ que simplifica la interpretación de los datos recibidos del GPS. Asegúrate de instalar esta librería desde el Administrador de Librerías de Arduino.
+1. Instala la Librería TinyGPS++
+
+En el IDE de Arduino:
+
+    Ve a Sketch -> Include Library -> Manage Libraries.
+    Busca TinyGPS++ e instala la librería.
+
+2. Código de Arduino
+
+cpp
+
+#include <TinyGPS++.h>
+#include <SoftwareSerial.h>
+
+// Crear una instancia de TinyGPS++
+TinyGPSPlus gps;
+
+// Configurar los pines del Arduino para la comunicación con el GPS
+#define GPS_RX 18
+#define GPS_TX 19
+HardwareSerial gpsSerial(1); // Usar Serial1 para la comunicación con el GPS
+
+void setup() {
+  Serial.begin(9600); // Comunicación con el monitor serie
+  gpsSerial.begin(9600); // Comunicación con el módulo GPS
+
+  Serial.println("Iniciando GPS...");
+}
+
+void loop() {
+  // Leer datos del GPS
+  while (gpsSerial.available() > 0) {
+    gps.encode(gpsSerial.read());
+  }
+
+  // Mostrar datos básicos del GPS en el monitor serie
+  if (gps.location.isUpdated()) {
+    Serial.print("Latitud: ");
+    Serial.println(gps.location.lat(), 6);
+    Serial.print("Longitud: ");
+    Serial.println(gps.location.lng(), 6);
+  }
+
+  if (gps.date.isUpdated()) {
+    Serial.print("Fecha: ");
+    Serial.print(gps.date.day());
+    Serial.print("/");
+    Serial.print(gps.date.month());
+    Serial.print("/");
+    Serial.println(gps.date.year());
+  }
+
+  if (gps.time.isUpdated()) {
+    Serial.print("Hora: ");
+    Serial.print(gps.time.hour());
+    Serial.print(":");
+    Serial.print(gps.time.minute());
+    Serial.print(":");
+    Serial.println(gps.time.second());
+  }
+
+  delay(1000); // Esperar 1 segundo antes de la siguiente lectura
+}
+
+Notas Adicionales:
+
+    Instalación de la Librería: Asegúrate de instalar la librería TinyGPS++ desde el Administrador de Librerías en el IDE de Arduino.
+    Verificación de Conexiones: Revisa que las conexiones sean correctas y estén bien firmes.
+    Monitor Serie: Abre el monitor serie en el IDE de Arduino a una velocidad de 9600 baudios para ver la salida del GPS.
+
+Con este código y las conexiones proporcionadas, deberías poder leer y mostrar los datos básicos del GPS en el monitor serie del Arduino.
